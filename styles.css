@@ -286,24 +286,24 @@ h1, h2, h3, h4 {
     background-color: var(--paper-color);
 }
 
-/* Room Map */
 .room-map-container {
     flex: 1;
     background-color: #f0f0f0;
-    background-image: 
-        linear-gradient(#e0e0e0 1px, transparent 1px),
-        linear-gradient(90deg, #e0e0e0 1px, transparent 1px);
-    background-size: 20px 20px;
     position: relative;
     overflow: hidden;
+    /* Touch actions allow custom zoom gestures to work better in mobile */
+    touch-action: none; 
 }
 
 .room-map {
     width: 3000px;
     height: 3000px;
     position: absolute;
-    /* Will be pannable later if needed, but for now absolute div inside container */
     transform-origin: 0 0;
+    background-image: 
+        linear-gradient(#e0e0e0 1px, transparent 1px),
+        linear-gradient(90deg, #e0e0e0 1px, transparent 1px);
+    background-size: 20px 20px;
 }
 
 /* Tables Structure */
