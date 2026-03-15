@@ -262,21 +262,73 @@ document.addEventListener('DOMContentLoaded', () => {
             removeGuest(guest.id);
         });
 
-        // Dragging events for guests
+        // Dragging events for guests (Mouse)
         div.addEventListener('dragstart', (e) => {
             state.draggedGuestId = guest.id;
             e.dataTransfer.setData('text/plain', guest.id);
-            // Slight delay so the element visual doesn't disappear immediately
-            setTimeout(() => {
-                div.style.opacity = '0.4';
-            }, 0);
+            setTimeout(() => { div.style.opacity = '0.4'; }, 0);
         });
 
         div.addEventListener('dragend', (e) => {
             div.style.opacity = '1';
             state.draggedGuestId = null;
-            // Remove all drop highlights
             document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+        });
+
+        // Touch Events for Mobile Dragging of Guests
+        let guestIsDragging = false;
+        
+        div.addEventListener('touchstart', (e) => {
+            // Prevent scrolling when touching a guest
+            if (!e.target.closest('.remove-guest')) {
+                state.draggedGuestId = guest.id;
+                guestIsDragging = true;
+                div.style.opacity = '0.4';
+                // Optional: visual clue like border
+                div.style.border = '2px dashed var(--primary-color)';
+            }
+        }, {passive: false});
+
+        div.addEventListener('touchmove', (e) => {
+            if (!guestIsDragging) return;
+            e.preventDefault(); // Stop page scrolling
+            
+            const touch = e.touches[0];
+            
+            // Highlight element under finger
+            const elUnderFinger = document.elementFromPoint(touch.clientX, touch.clientY);
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            
+            if (elUnderFinger) {
+                let dropZone = elUnderFinger.closest('.wedding-table') || elUnderFinger.closest('#unassigned-guests');
+                if (dropZone) {
+                    dropZone.classList.add('drag-over');
+                }
+            }
+        }, {passive: false});
+
+        div.addEventListener('touchend', (e) => {
+            if (!guestIsDragging) return;
+            guestIsDragging = false;
+            div.style.opacity = '1';
+            div.style.border = '';
+            
+            const touch = e.changedTouches[0];
+            const elUnderFinger = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+            
+            if (elUnderFinger && state.draggedGuestId) {
+                let tableZone = elUnderFinger.closest('.wedding-table');
+                let unassignedZone = elUnderFinger.closest('#unassigned-guests');
+                
+                if (tableZone) {
+                    moveGuestToTable(guest.id, tableZone.dataset.tableId);
+                } else if (unassignedZone) {
+                    moveGuestToTable(guest.id, 'unassigned');
+                }
+            }
+            state.draggedGuestId = null;
         });
 
         return div;
@@ -436,6 +488,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 tableElement.style.zIndex = 1;
                 
                 // Save new position in state
+                tableData.x = parseInt(tableElement.style.left);
+                tableData.y = parseInt(tableElement.style.top);
+                saveState();
+            }
+        });
+
+        // --- Touch Events for Mobile Table Dragging --- //
+        tableElement.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.guest-item') || e.target.closest('.delete-table-btn')) return;
+
+            isDragging = true;
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            initialLeft = parseInt(tableElement.style.left) || 0;
+            initialTop = parseInt(tableElement.style.top) || 0;
+
+            tableElement.style.zIndex = 100;
+        }, {passive: false});
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault(); // Stop standard scrolling
+
+            const touch = e.touches[0];
+            const dx = touch.clientX - startX;
+            const dy = touch.clientY - startY;
+
+            let newLeft = initialLeft + dx;
+            let newTop = initialTop + dy;
+
+            if (newLeft < 0) newLeft = 0;
+            if (newTop < 0) newTop = 0;
+
+            tableElement.style.left = `${newLeft}px`;
+            tableElement.style.top = `${newTop}px`;
+        }, {passive: false});
+
+        document.addEventListener('touchend', (e) => {
+            if (isDragging) {
+                isDragging = false;
+                tableElement.style.zIndex = 1;
+                
                 tableData.x = parseInt(tableElement.style.left);
                 tableData.y = parseInt(tableElement.style.top);
                 saveState();
