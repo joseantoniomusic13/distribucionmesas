@@ -17,6 +17,11 @@
             <h2>Planificador de Mesas</h2>
         </div>
         
+        <!-- Botón Descargar PNG en Móvil -->
+        <button id="mobile-download-btn" class="mobile-download-btn" title="Descargar Imagen del Plano">
+            <i class="fas fa-image"></i>
+        </button>
+        
         <div class="controls-container">
             <div class="control-group">
                 <label for="table-shape">Forma:</label>
@@ -43,6 +48,12 @@
     </header>
 
     <main class="app-content">
+        <!-- Botón Flotante (sólo visible en móvil) -->
+        <button id="mobile-sidebar-toggle" class="mobile-toggle-btn">
+            <i class="fas fa-users"></i>
+            <span id="mobile-unassigned-count" class="guest-count">0</span>
+        </button>
+
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h3>Invitados sin Mesa</h3>
@@ -80,7 +91,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
-
-
-
