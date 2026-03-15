@@ -519,6 +519,162 @@ h1, h2, h3, h4 {
     margin: 2px;
 }
 
+/* Ocultar botón de descarga de móvil en PC */
+.mobile-download-btn {
+    display: none;
+}
+
+/* --- OPTIMIZACIÓN MÓVIL (RESPONSIVE) --- */
+@media (max-width: 900px) {
+    .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem;
+        gap: 1rem;
+        position: relative;
+    }
+    
+    .mobile-download-btn {
+        display: flex;
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background-color: var(--primary-color);
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        border: none;
+        box-shadow: var(--shadow-sm);
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        z-index: 100;
+        cursor: pointer;
+    }
+
+    .controls-container {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+    }
+
+    .control-group {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .primary-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    /* El mapa ocupará toda la pantalla por defecto */
+    .app-content {
+        position: relative;
+    }
+
+    .room-map-container {
+        height: 100vh;
+        width: 100%;
+    }
+
+    /* Botón flotante para abrir panel */
+    .mobile-toggle-btn {
+        display: flex;
+        position: absolute;
+        bottom: 2rem;
+        right: 2rem;
+        background-color: var(--primary-color);
+        color: white;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5rem;
+        z-index: 100;
+        cursor: pointer;
+    }
+
+    .mobile-toggle-btn .guest-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        font-size: 0.7rem;
+        padding: 0.1rem 0.4rem;
+        border: 2px solid white;
+    }
+
+    /* La barra lateral se vuelve un panel superpuesto en la parte inferior (Drawer) */
+    .sidebar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60vh;
+        z-index: 200;
+        transition: transform 0.3s ease-in-out;
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+        border-top: 2px solid var(--primary-color);
+        border-bottom: none;
+        border-right: none;
+        background-color: var(--paper-color);
+        /* Hidden by default in mobile via transform */
+        transform: translateY(100%);
+    }
+
+    /* Clase para mostrar el panel movil */
+    .sidebar.mobile-open {
+        transform: translateY(0);
+    }
+
+    .sidebar-header {
+        padding: 1rem;
+    }
+
+    /* Icono de X para cerrar el drawer (sustituye a chevron) */
+    .sidebar-header::after {
+        content: '\f00d'; /* fa-xmark */
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        cursor: pointer;
+        padding: 0.5rem;
+    }
+
+    .guests-list-container {
+        display: flex;
+        flex-direction: column; /* Vertical de nuevo pero en el drawer */
+        overflow-y: auto;
+        padding: 0.8rem;
+        gap: 0.5rem;
+    }
+
+    .guest-item {
+        margin-bottom: 0;
+        padding: 0.8rem;
+    }
+
+    .sidebar-footer {
+        padding: 0.8rem;
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .sidebar-footer button {
+        margin-bottom: 0 !important;
+        flex: 1;
+        font-size: 0.8rem;
+        padding: 0.6rem;
+    }
+}
+
 /* Drag overlay for visual feedback */
 #drag-overlay {
     position: fixed;
@@ -539,4 +695,11 @@ h1, h2, h3, h4 {
 .table-full .table-capacity {
     color: var(--danger);
     font-weight: bold;
+}
+
+/* Ocultar botón flotante en desktop */
+@media (min-width: 769px) {
+    .mobile-toggle-btn {
+        display: none !important;
+    }
 }
