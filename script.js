@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tableCounter: 1,
         guestCounter: 1,
         draggedGuestId: null,
+        selectedGuestId: null, // Nuevo: para Tap & Place en móviles
         draggedTableId: null,
         offsetX: 0,
         offsetY: 0
@@ -29,7 +30,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         exportBtn: document.getElementById('export-btn'),
         downloadPngBtn: document.getElementById('download-png-btn'),
-        resetBtn: document.getElementById('reset-btn')
+        resetBtn: document.getElementById('reset-btn'),
+        
+        // Mobile UI
+        mobileToggleBtn: document.getElementById('mobile-sidebar-toggle'),
+        mobileUnassignedCount: document.getElementById('mobile-unassigned-count'),
+        mobileDownloadBtn: document.getElementById('mobile-download-btn')
     };
 
     // --- Initialization ---
@@ -58,7 +64,27 @@ document.addEventListener('DOMContentLoaded', () => {
         // Export & Reset
         elements.exportBtn.addEventListener('click', handleExport);
         elements.downloadPngBtn.addEventListener('click', handleDownloadPng);
+        if (elements.mobileDownloadBtn) {
+            elements.mobileDownloadBtn.addEventListener('click', handleDownloadPng);
+        }
         elements.resetBtn.addEventListener('click', handleReset);
+        // Mobile UI Logic (Floating Button & Drawer)
+        const sidebarHeader = document.querySelector('.sidebar-header');
+        const sidebar = document.querySelector('.sidebar');
+
+        // Cerrar panel pulsando en el header (X)
+        sidebarHeader.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+
+        // Abrir panel pulsando botón flotante
+        if(elements.mobileToggleBtn) {
+            elements.mobileToggleBtn.addEventListener('click', () => {
+                sidebar.classList.add('mobile-open');
+            });
+        }
     }
 
     // --- State Persistence (LocalStorage) ---
@@ -129,6 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         guest.tableId = tableId;
+        state.selectedGuestId = null; // Limpiar selección en tap & place
         updateAllUI();
         saveState();
     }
@@ -198,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderUnassignedGuests() {
         const unassignedList = state.guests.filter(g => g.tableId === 'unassigned');
         elements.unassignedCount.textContent = unassignedList.length;
+        if(elements.mobileUnassignedCount) elements.mobileUnassignedCount.textContent = unassignedList.length;
         
         elements.unassignedList.innerHTML = '';
         
@@ -248,13 +276,34 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="remove-guest" title="Eliminar invitado"><i class="fas fa-times"></i></span>
         `;
 
-        // Click on the guest item to send back to unassigned list
+        // Click on the guest item to send back to unassigned list OR select for Tap-and-Place
         div.addEventListener('click', (e) => {
             if (e.target.closest('.remove-guest')) return;
+            
             if (guest.tableId !== 'unassigned') {
+                // Return to unassigned list immediately if already seated
                 moveGuestToTable(guest.id, 'unassigned');
+            } else {
+                // If in unassigned list AND we click on it -> Select it for mobile "Tap and Place"
+                if (state.selectedGuestId === guest.id) {
+                    state.selectedGuestId = null; // Deseleccionar si tocas el mismo
+                    updateAllUI();
+                } else {
+                    state.selectedGuestId = guest.id;
+                    updateAllUI();
+                }
             }
         });
+
+        // Highlight if selected
+        if (state.selectedGuestId === guest.id) {
+            div.style.backgroundColor = 'var(--primary-color)';
+            div.style.color = 'white';
+            const icon = div.querySelector('i');
+            if(icon) icon.style.color = 'white';
+            div.style.transform = 'scale(1.02)';
+            div.style.boxShadow = 'var(--shadow-md)';
+        }
 
         // Remove guest completely (X button, now only visible in side bar via CSS)
         div.querySelector('.remove-guest').addEventListener('click', (e) => {
@@ -318,6 +367,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
             
+            // Cerrar el drawer automaticamente en movil al arrastrar con exito a la vista principal
+            if (window.innerWidth <= 768 && document.querySelector('.sidebar').classList.contains('mobile-open')) {
+                 document.querySelector('.sidebar').classList.remove('mobile-open');
+            }
+            
             if (elUnderFinger && state.draggedGuestId) {
                 let tableZone = elUnderFinger.closest('.wedding-table');
                 let unassignedZone = elUnderFinger.closest('#unassigned-guests');
@@ -377,6 +431,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 <!-- Guests dropped here -->
             </div>
         `;
+
+        // Click event on table for "Tap and Place" from mobile panel
+        table.addEventListener('click', (e) => {
+            // Ignore if clicking on a guest item inside the table or the trash bin
+            if (e.target.closest('.guest-item') || e.target.closest('.delete-table-btn')) {
+                return;
+            }
+            if (state.selectedGuestId) {
+                // User has a guest selected in the drawer, assign it here
+                moveGuestToTable(state.selectedGuestId, tableData.id);
+                // Cerrar drawer automatically if window is small
+                if (window.innerWidth <= 768) {
+                    const sidebar = document.querySelector('.sidebar');
+                    if(sidebar) sidebar.classList.remove('mobile-open');
+                }
+            }
+        });
 
         elements.roomMap.appendChild(table);
 
@@ -543,6 +614,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const originalButtonText = elements.downloadPngBtn.innerHTML;
         elements.downloadPngBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
         elements.downloadPngBtn.disabled = true;
+        if(elements.mobileDownloadBtn) {
+            elements.mobileDownloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            elements.mobileDownloadBtn.disabled = true;
+        }
 
         if (typeof html2canvas !== 'undefined') {
             
@@ -550,8 +625,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const tablesEls = elements.roomMap.querySelectorAll('.wedding-table');
             if (tablesEls.length === 0) {
                 alert("No hay mesas en el plano para exportar.");
-                elements.downloadPngBtn.innerHTML = originalButtonText;
-                elements.downloadPngBtn.disabled = false;
+                resetDownloadButtons(originalButtonText);
                 return;
             }
 
@@ -598,18 +672,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 
-                elements.downloadPngBtn.innerHTML = originalButtonText;
-                elements.downloadPngBtn.disabled = false;
+                resetDownloadButtons(originalButtonText);
             }).catch(err => {
                 console.error('Error generando PNG:', err);
                 alert('Hubo un error al generar la imagen. Intenta de nuevo.');
-                elements.downloadPngBtn.innerHTML = originalButtonText;
-                elements.downloadPngBtn.disabled = false;
+                resetDownloadButtons(originalButtonText);
             });
         } else {
             alert('La librería para exportar imágenes no se ha cargado.');
-            elements.downloadPngBtn.innerHTML = originalButtonText;
-            elements.downloadPngBtn.disabled = false;
+            resetDownloadButtons(originalButtonText);
+        }
+    }
+
+    function resetDownloadButtons(originalText) {
+        elements.downloadPngBtn.innerHTML = originalText;
+        elements.downloadPngBtn.disabled = false;
+        if(elements.mobileDownloadBtn) {
+            elements.mobileDownloadBtn.innerHTML = '<i class="fas fa-image"></i>';
+            elements.mobileDownloadBtn.disabled = false;
         }
     }
 
