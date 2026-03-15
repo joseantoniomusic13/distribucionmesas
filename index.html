@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distribución de Mesas - Lorena y Estefanía</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-titles">
+            <h1>Lorena & Estefanía</h1>
+            <h2>Planificador de Mesas</h2>
+        </div>
+        
+        <div class="controls-container">
+            <div class="control-group">
+                <label for="table-shape">Forma:</label>
+                <select id="table-shape">
+                    <option value="round">Redonda</option>
+                    <option value="rectangular">Rectangular</option>
+                    <option value="presidential">Presidencial</option>
+                    <option value="dj">Sonorización / DJ</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label for="table-capacity">Capacidad:</label>
+                <input type="number" id="table-capacity" min="2" max="20" value="8">
+            </div>
+
+            <div class="control-group">
+                <label for="table-name">Nombre/Nº (Opcional):</label>
+                <input type="text" id="table-name" placeholder="Ej: Mesa 1">
+            </div>
+            
+            <button id="add-table-btn" class="primary-btn"><i class="fas fa-plus"></i> Añadir Mesa</button>
+        </div>
+    </header>
+
+    <main class="app-content">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Invitados sin Mesa</h3>
+                <span class="guest-count" id="unassigned-count">0</span>
+            </div>
+            
+            <div class="add-guest-form">
+                <input type="text" id="guest-name-input" placeholder="Nombre completo">
+                <button id="add-guest-btn"><i class="fas fa-user-plus"></i></button>
+            </div>
+            
+            <div class="guests-list-container" id="unassigned-guests" data-table-id="unassigned">
+                <!-- Guests will be mapped here -->
+                <div class="empty-state">No hay invitados en espera.</div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <button id="reset-btn" class="secondary-btn" style="margin-bottom: 0.8rem; color: var(--danger); border-color: var(--danger);"><i class="fas fa-trash"></i> Reiniciar desde Cero</button>
+                <button id="export-btn" class="secondary-btn" style="margin-bottom: 0.8rem;"><i class="fas fa-file-export"></i> Exportar a Archivo</button>
+                <button id="download-png-btn" class="secondary-btn"><i class="fas fa-image"></i> Descargar Imagen PNG</button>
+            </div>
+        </aside>
+
+        <section class="room-map-container">
+            <div class="room-map" id="room-map">
+                <!-- Tables will be inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Overlay Template for Dragging -->
+    <div id="drag-overlay"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

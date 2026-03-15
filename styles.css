@@ -1,0 +1,542 @@
+:root {
+    --primary-color: #833441; /* Vino tinto / Burdeos */
+    --primary-light: #F2DCE0; /* Rosa muy claro, derivado del tinto */
+    --primary-dark: #5B242D; /* Versión más oscura para hovers */
+    --bg-color: #FAFAFA;
+    --paper-color: #FFFFFF;
+    --text-main: #333333;
+    --text-muted: #777777;
+    --danger: #E07A5F;
+    --success: #81B29A;
+    --border-color: #E2E2E2;
+    --font-heading: 'Cormorant Garamond', serif;
+    --font-body: 'Montserrat', sans-serif;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow-hover: 0 12px 32px rgba(131, 52, 65, 0.2); /* Sombra con el color primario */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Typography */
+h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+}
+
+/* Header */
+.app-header {
+    background-color: var(--paper-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+    border-bottom: 2px solid var(--primary-light);
+}
+
+.header-titles h1 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.2rem;
+    font-style: italic;
+}
+
+.header-titles h2 {
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-family: var(--font-body);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.controls-container {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-end;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.control-group label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.controls-container select,
+.controls-container input {
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    background-color: var(--bg-color);
+    transition: border-color 0.2s;
+    outline: none;
+}
+
+.controls-container select:focus,
+.controls-container input:focus {
+    border-color: var(--primary-color);
+}
+
+.primary-btn {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.primary-btn:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.secondary-btn {
+    background-color: #fff;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 0.7rem 1.5rem;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.secondary-btn:hover {
+    background-color: var(--primary-light);
+}
+
+/* Layout */
+.app-content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 320px;
+    background-color: var(--paper-color);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    z-index: 5;
+    box-shadow: var(--shadow-sm);
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    background-color: rgba(131, 52, 65, 0.05); /* very light tint of primary */
+}
+
+.sidebar-header h3 {
+    font-size: 1.4rem;
+    color: var(--text-main);
+}
+
+.guest-count {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.add-guest-form {
+    padding: 1rem 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.add-guest-form input {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.add-guest-form input:focus {
+    border-color: var(--primary-color);
+}
+
+.add-guest-form button {
+    background-color: var(--text-main);
+    color: white;
+    border: none;
+    width: 40px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.add-guest-form button:hover {
+    background-color: var(--primary-color);
+}
+
+.guests-list-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.5rem;
+    background-color: var(--bg-color);
+    /* For dragging */
+    min-height: 100px;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    font-size: 0.9rem;
+    margin-top: 2rem;
+}
+
+/* Guests Styles */
+.guest-item {
+    background-color: var(--paper-color);
+    padding: 0.8rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.6rem;
+    border-left: 3px solid var(--primary-color);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+    transition: transform 0.2s, box-shadow 0.2s;
+    user-select: none;
+}
+
+.guest-item:active {
+    cursor: grabbing;
+}
+
+.guest-item:hover {
+    transform: translateX(2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.guest-item .guest-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    pointer-events: none;
+}
+
+.guest-item .remove-guest {
+    color: var(--danger);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.guest-item .remove-guest:hover {
+    opacity: 1;
+}
+
+.sidebar-footer {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--paper-color);
+}
+
+/* Room Map */
+.room-map-container {
+    flex: 1;
+    background-color: #f0f0f0;
+    background-image: 
+        linear-gradient(#e0e0e0 1px, transparent 1px),
+        linear-gradient(90deg, #e0e0e0 1px, transparent 1px);
+    background-size: 20px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.room-map {
+    width: 3000px;
+    height: 3000px;
+    position: absolute;
+    /* Will be pannable later if needed, but for now absolute div inside container */
+    transform-origin: 0 0;
+}
+
+/* Tables Structure */
+.wedding-table {
+    position: absolute;
+    background-color: var(--paper-color);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: grab;
+    transition: box-shadow 0.3s;
+    min-width: 160px;
+    min-height: 160px;
+    z-index: 1;
+}
+
+.wedding-table:active {
+    cursor: grabbing;
+    z-index: 100;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+.wedding-table.round {
+    border-radius: 50%;
+    border: 4px solid var(--primary-color);
+    justify-content: center;
+    padding: 2rem;
+}
+
+.wedding-table.rectangular {
+    border-radius: 8px;
+    border: 4px solid var(--primary-color);
+    padding: 1rem;
+    min-width: 220px;
+    min-height: 120px;
+    justify-content: center;
+}
+
+.wedding-table.presidential {
+    border-radius: 8px;
+    border: 4px solid var(--primary-color);
+    padding: 1rem;
+    min-width: 400px;
+    min-height: 100px;
+    justify-content: flex-start;
+    background-color: var(--primary-light);
+}
+
+.wedding-table.dj {
+    border-radius: 8px;
+    border: 4px solid #111;
+    padding: 1rem;
+    min-width: 140px;
+    min-height: 100px;
+    justify-content: center;
+    background-color: #2b2b2b;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.8), var(--shadow-md);
+}
+
+/* Efecto de mesa de mezclas (vinilos y botones) */
+.wedding-table.dj::before,
+.wedding-table.dj::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: radial-gradient(circle, #000 20%, #333 30%, #000 40%, #333 50%, #000 60%, #333 70%, #000 80%, #222 90%);
+    border-radius: 50%;
+    border: 2px solid #555;
+    z-index: 0;
+    opacity: 0.5;
+}
+
+.wedding-table.dj::before {
+    left: 5px;
+}
+.wedding-table.dj::after {
+    right: 5px;
+}
+
+.wedding-table.dj .table-header,
+.wedding-table.dj .table-guests-list {
+    position: relative;
+    z-index: 1; /* Texto por encima del diseño del vinilo */
+}
+
+.wedding-table.dj .table-name {
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+}
+.wedding-table.dj .table-capacity {
+    color: #ccc;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+/* Table Controls inside map */
+.table-header {
+    text-align: center;
+    margin-bottom: 1rem;
+    pointer-events: none;
+}
+
+.table-name {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.table-capacity {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Delete table */
+.delete-table-btn {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    background-color: var(--danger);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0.8; /* Siempre visible ligeramente */
+    transition: opacity 0.2s, transform 0.2s;
+    border: 3px solid white;
+    box-shadow: var(--shadow-sm);
+    z-index: 10;
+}
+
+.wedding-table:hover .delete-table-btn {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* Guests dropzone inside table */
+.table-guests-list {
+    width: 100%;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: center;
+    /* Important for drag and drop */
+}
+
+/* Adjusting guests layout based on shape */
+.wedding-table.round .table-guests-list {
+    max-width: 80%;
+}
+
+.wedding-table.rectangular .table-guests-list,
+.wedding-table.presidential .table-guests-list {
+    width: 100%;
+}
+
+.wedding-table.presidential .table-guests-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.wedding-table.dj .table-guests-list {
+    width: 100%;
+}
+
+.wedding-table .guest-item {
+    padding: 0.4rem 0.8rem;
+    margin: 0;
+    width: 100%;
+    font-size: 0.85rem;
+    border-left: 3px solid var(--primary-color);
+    background-color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.wedding-table .guest-item:hover {
+    background-color: var(--danger);
+    color: white;
+    border-left-color: darkred;
+}
+
+.wedding-table .guest-item:hover .guest-name i {
+    color: white !important;
+}
+
+/* Ocultar la X una vez que están en la mesa (se vuelve clickeable todo) */
+.wedding-table .guest-item .remove-guest {
+    display: none;
+}
+
+.wedding-table .guest-item .guest-name {
+    font-size: 0.85px; /* Typo from before, fixing to 0.85rem */
+    font-size: 0.85rem;
+}
+
+.wedding-table.presidential .guest-item {
+    width: auto;
+    margin: 2px;
+}
+
+/* Drag overlay for visual feedback */
+#drag-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+/* Drop target highlight */
+.drag-over {
+    background-color: var(--primary-light) !important;
+    border-color: var(--primary-color) !important;
+}
+
+.table-full .table-capacity {
+    color: var(--danger);
+    font-weight: bold;
+}
