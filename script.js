@@ -7,10 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
         tableCounter: 1,
         guestCounter: 1,
         draggedGuestId: null,
+        draggedGuestId: null,
         selectedGuestId: null, // Nuevo: para Tap & Place en móviles
         draggedTableId: null,
         offsetX: 0,
-        offsetY: 0
+        offsetY: 0,
+        zoomLevel: 1, // Controlar escala gráfica (Alejar/acercar)
+        panX: 0,
+        panY: 0
     };
 
     // --- DOM Elements ---
@@ -276,7 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <span class="remove-guest" title="Eliminar invitado"><i class="fas fa-times"></i></span>
         `;
 
-        // Click on the guest item to send back to unassigned list OR select for Tap-and-Place
         div.addEventListener('click', (e) => {
             if (e.target.closest('.remove-guest')) return;
             
@@ -291,6 +294,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     state.selectedGuestId = guest.id;
                     updateAllUI();
+                    
+                    // Novedad UX Móvil: Cerrar pestaña inmediatamente tras seleccionar el nombre
+                    if (window.innerWidth <= 768) {
+                        const sidebar = document.querySelector('.sidebar');
+                        if(sidebar) sidebar.classList.remove('mobile-open');
+                    }
                 }
             }
         });
@@ -516,6 +525,119 @@ document.addEventListener('DOMContentLoaded', () => {
         moveGuestToTable(guestId, targetTableId);
     }
 
+    // --- Panning & Zooming Logic for the Map (Pinch to Zoom & Drag map) ---
+    function setupMapGestures() {
+        const map = elements.roomMap;
+        const container = elements.roomMapContainer;
+        
+        // Use state values
+        state.zoomLevel = state.zoomLevel || 1;
+        state.panX = state.panX || 0;
+        state.panY = state.panY || 0;
+
+        function updateMapTransform() {
+            map.style.transform = `translate(${state.panX}px, ${state.panY}px) scale(${state.zoomLevel})`;
+        }
+
+        updateMapTransform();
+
+        // 1. Mouse Drag to Pan (background only)
+        let isPanning = false;
+        let startPanX, startPanY;
+
+        container.addEventListener('mousedown', (e) => {
+            // Initiate panning only if we directly click the background, not tables/guests
+            if(e.target === container || e.target === map) {
+                isPanning = true;
+                startPanX = e.clientX - state.panX;
+                startPanY = e.clientY - state.panY;
+                container.style.cursor = 'grabbing';
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isPanning) return;
+            state.panX = e.clientX - startPanX;
+            state.panY = e.clientY - startPanY;
+            updateMapTransform();
+        });
+
+        document.addEventListener('mouseup', () => {
+            if(isPanning) {
+                isPanning = false;
+                container.style.cursor = 'default';
+                saveState();
+            }
+        });
+
+        // 2. Mouse Wheel to Zoom
+        container.addEventListener('wheel', (e) => {
+            if (e.deltaY < 0) {
+                state.zoomLevel = Math.min(state.zoomLevel + 0.1, 2); // Max zoom in
+            } else {
+                state.zoomLevel = Math.max(state.zoomLevel - 0.1, 0.3); // Max zoom out is 0.3
+            }
+            updateMapTransform();
+            saveState();
+        });
+
+        // 3. Touch Gestures (Pinch to zoom + Pan map)
+        let touchStartDist = 0;
+        let pannedMap = false;
+        let touchStartPanX, touchStartPanY;
+        let touchInitialZoom;
+
+        container.addEventListener('touchstart', (e) => {
+            if(e.target.closest('.wedding-table')) return; // If touching table, don't pan/zoom map
+
+            if (e.touches.length === 2) {
+                // Pinch to zoom start
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                touchStartDist = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+                touchInitialZoom = state.zoomLevel;
+                pannedMap = true; // prevent clicks
+            } else if (e.touches.length === 1 && (e.target === container || e.target === map)) {
+                // Pan start
+                pannedMap = true;
+                const touch = e.touches[0];
+                touchStartPanX = touch.clientX - state.panX;
+                touchStartPanY = touch.clientY - state.panY;
+            }
+        }, {passive: false});
+
+        container.addEventListener('touchmove', (e) => {
+            if(!pannedMap) return;
+            e.preventDefault();
+
+            if (e.touches.length === 2) {
+                // Pinch to zoom move
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDist = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+                
+                // Scale zoom based on distance
+                const scaleFactor = currentDist / touchStartDist;
+                state.zoomLevel = Math.max(0.3, Math.min(2, touchInitialZoom * scaleFactor));
+                
+                updateMapTransform();
+            } else if (e.touches.length === 1) {
+                // Pan move
+                const touch = e.touches[0];
+                state.panX = touch.clientX - touchStartPanX;
+                state.panY = touch.clientY - touchStartPanY;
+                updateMapTransform();
+            }
+        }, {passive: false});
+
+        container.addEventListener('touchend', (e) => {
+            if (pannedMap && e.touches.length === 0) {
+                pannedMap = false;
+                saveState();
+            }
+        });
+    }
+
     // --- Table Free Dragging Logic ---
 
     function setupTableDragging(tableElement, tableData) {
@@ -602,6 +724,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 isDragging = false;
                 tableElement.style.zIndex = 1;
                 
+                // Save true position recalculating scale
                 tableData.x = parseInt(tableElement.style.left);
                 tableData.y = parseInt(tableElement.style.top);
                 saveState();
@@ -717,5 +840,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Launch!
     init();
-
+    setupMapGestures(); // Call once after init
 });
